@@ -6,8 +6,6 @@ import json
 from app.db.repository import save_cve_to_db
 from app.db.config import get_db
 
-BATCH_SIZE = 100
-
 
 async def process_cve_file(user_path: str):
     async with aiofiles.open(user_path, 'r', encoding='utf-8') as file:
@@ -33,7 +31,7 @@ async def process_directory(directory_path: str):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python main.py <path_to_json_file>")
+        print("Usage: python main.py <path_to_json_files>")
         sys.exit(1)
 
     directory_path = sys.argv[1]
