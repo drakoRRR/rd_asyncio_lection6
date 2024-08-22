@@ -7,6 +7,9 @@ from app.db.repository import save_cve_to_db
 from app.db.config import get_db
 
 
+BATCH_SIZE = 100
+
+
 async def process_cve_file(user_path: str):
     async with aiofiles.open(user_path, 'r', encoding='utf-8') as file:
         file_content = await file.read()
@@ -17,6 +20,7 @@ async def process_cve_file(user_path: str):
 async def process_directory(directory_path: str):
     async with get_db() as session:
         tasks = []
+        batch_counter = 0
 
         for root, dirs, files in os.walk(directory_path):
             for file in files:
@@ -24,9 +28,17 @@ async def process_directory(directory_path: str):
                     file_path = os.path.join(root, file)
                     task = process_cve_file(file_path)
                     tasks.append(task)
+                    batch_counter += 1
 
-        batch_data = await asyncio.gather(*tasks)
-        await save_cve_to_db(session, batch_data)
+                    if batch_counter >= BATCH_SIZE:
+                        batch_data = await asyncio.gather(*tasks)
+                        await save_cve_to_db(session, batch_data)
+                        tasks = []
+                        batch_counter = 0
+
+        if tasks:
+            batch_data = await asyncio.gather(*tasks)
+            await save_cve_to_db(session, batch_data)
 
 
 if __name__ == "__main__":
