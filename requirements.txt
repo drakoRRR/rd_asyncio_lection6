@@ -7,3 +7,4 @@ greenlet
 sqlalchemy[asyncio]
 psycopg2-binary
 aiofiles
+python-dotenv

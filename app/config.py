@@ -1,6 +1,9 @@
 import os
 
 from pydantic import PostgresDsn
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 POSTGRES_USER: str = os.getenv("POSTGRES_USER", default="postgres")
